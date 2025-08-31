@@ -1,0 +1,39 @@
+<?php
+session_start();
+include "db_connect.php";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $matric_no = $_POST['matric_no'];
+
+    $sql = "SELECT * FROM students WHERE matric_no = '$matric_no' LIMIT 1";
+    $result = $conn->query($sql);
+
+    if ($result->num_rows == 1) {
+        $row = $result->fetch_assoc();
+
+        // Set session data
+        $_SESSION['matric_no'] = $row['matric_no'];
+        $_SESSION['name'] = $row['name'];
+        $_SESSION['level'] = $row['level'];
+
+        header("Location: dashboard.php");
+        exit();
+    } else {
+        echo "<p style='color:red;'>❌ Invalid Matric Number</p>";
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <h2>Login</h2>
+    <form method="post" action="">
+        <input type="text" name="matric_no" placeholder="Enter Matric Number" required>
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>		
