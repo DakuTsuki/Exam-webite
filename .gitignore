@@ -1,0 +1,23 @@
+# Ignore images
+*.jpg
+*.png
+
+# Ignore database files and backups  
+*.sql
+*.backup
+
+# Ignore session files
+sess_*
+
+# Ignore test files
+test.php
+
+# Ignore database credentials (important for security!)
+db_connect.php
+
+# Ignore manual directory
+manual/
+
+# Ignore backup folders
+my_unilag_portal/
+
