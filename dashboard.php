@@ -1,14 +1,6 @@
 <?php
 session_start();
 
-// DEBUG: Let's see what information we have
-echo "<div style='background: yellow; padding: 10px;'>";
-echo "<strong>DEBUG INFO:</strong><br>";
-echo "Matric Number: " . $_SESSION['matric_no'] . "<br>";
-echo "Student Name: " . $_SESSION['name'] . "<br>";
-echo "Student Level: " . $_SESSION['level'] . "<br>";
-echo "</div>";
-
 if (!isset($_SESSION['matric_no'])) {
     header("Location: login.php");
     exit();
@@ -41,6 +33,7 @@ if (!isset($_SESSION['matric_no'])) {
             <li><a href="courses.php">Courses</a></li>
             <li><a href="exams.php">Exam</a></li>
             <li>Results</li>
+            <li><a href="student_bio.php">Bio Data</a></li>
             <li>Student Applications</li>
         </ul>
     </div>

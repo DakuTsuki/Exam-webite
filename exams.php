@@ -17,10 +17,14 @@ $sql_courses = "SELECT DISTINCT code FROM courses
 $result_courses = $conn->query($sql_courses);
 $student_courses = $result_courses->fetch_all(MYSQLI_ASSOC);
 
-// Get exam timetable for student's courses
+// Get exam timetable for student's courses with invigilators
 $course_codes = array_column($student_courses, 'code');
 $placeholders = implode(',', array_fill(0, count($course_codes), '?'));
-$sql_exams = "SELECT * FROM exams WHERE level = ? AND course_code IN ($placeholders) ORDER BY exam_date, exam_time";
+$sql_exams = "SELECT e.*, i.title as invig_title, i.name as invig_name 
+              FROM exams e 
+              LEFT JOIN invigilators i ON e.invigilator_id = i.invigilator_id 
+              WHERE e.level = ? AND e.course_code IN ($placeholders) 
+              ORDER BY e.exam_date, e.exam_time";
 $stmt = $conn->prepare($sql_exams);
 $stmt->bind_param(str_repeat('s', count($course_codes) + 1), $level, ...$course_codes);
 $stmt->execute();
@@ -64,6 +68,33 @@ $exams = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         .exam-hall {
             font-weight: bold;
             color: #8B0000;
+        }
+        .invigilator {
+            font-weight: bold;
+            color: #5D3954;
+        }
+        .semester-header {
+            background: linear-gradient(to right, #6cb3ff, #7ed6ff);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0 10px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .print-btn {
+            background: #3cb4e7;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px 0;
+            transition: 0.2s;
+        }
+        .print-btn:hover {
+            background: #2a9fd6;
         }
     </style>
 </head>
@@ -111,7 +142,7 @@ $exams = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         </div>
 
         <!-- Exam Timetable -->
-        <h3 style="margin: 20px 0; color: #0072ce;">Your Personal Exam Timetable</h3>
+        <h3 style="margin: 20px 0; color: #0072ce;"> Exam Timetable</h3>
         
         <table class="exam-table">
             <thead>
@@ -121,6 +152,7 @@ $exams = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                     <th>Course</th>
                     <th>Course Title</th>
                     <th>Exam Hall</th>
+                    <th>Invigilator</th>
                 </tr>
             </thead>
             <tbody>
@@ -132,11 +164,14 @@ $exams = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                         <td><strong><?php echo $exam['course_code']; ?></strong></td>
                         <td><?php echo $exam['course_title']; ?></td>
                         <td class="exam-hall"><?php echo $exam['exam_hall']; ?></td>
+                        <td class="invigilator">
+                            <?php echo !empty($exam['invig_title']) ? $exam['invig_title'] . ' ' . $exam['invig_name'] : 'TBA'; ?>
+                        </td>
                     </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 20px;">
+                        <td colspan="6" style="text-align: center; padding: 20px;">
                             No exam schedule available yet. Please check back later.
                         </td>
                     </tr>
@@ -146,10 +181,38 @@ $exams = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
         <!-- Print Button -->
         <div style="text-align: center; margin: 30px 0;">
-            <button onclick="window.print()" class="btn" style="width: 200px;">
+            <button onclick="window.print()" class="print-btn">
                 🖨️ Print Timetable
             </button>
         </div>
     </div>
+
+    <script>
+        // Add print styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @media print {
+                .sidebar, .navbar, .print-btn {
+                    display: none !important;
+                }
+                .main {
+                    margin-left: 0 !important;
+                    width: 100% !important;
+                }
+                body {
+                    background: white !important;
+                }
+                .exam-table {
+                    box-shadow: none !important;
+                    border: 1px solid #000 !important;
+                }
+                .header-card {
+                    background: #f0f0f0 !important;
+                    color: black !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
-</html>/
+</html>

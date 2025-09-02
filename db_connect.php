@@ -1,11 +1,14 @@
 <?php
-$host = "localhost"; // Or the host provided by your web host
-$username = "id123456_user"; // Provided by host
-$password = "your_new_password"; // Provided by host  
-$database = "id123456_school_db"; // Provided by host
+$host = "127.0.0.1"; // Use IP address instead of localhost
+$username = "root";
+$password = ""; // No password
+$database = "school_db";
+$port = 3306; // Default MySQL port
 
-$conn = new mysqli($host, $username, $password, $database);
+// Create connection
+$conn = new mysqli($host, $username, $password, $database, $port);
 
+// Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
